@@ -11,13 +11,23 @@ mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="127.0.0.1")
 #Google Prod
 #mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="104.154.153.225")
 
-query <- function(...) dbGetQuery(mychannel, ...)
+source('RMySQL_Update.R')
 
-var_whse <- 7
+query <- function(...) dbGetQuery(mychannel, ...)
+date_today <- Sys.Date()
+date_today <- date_today
+date_1week <- date_today + 7
+
+
+#list_whse <- list(2,3,6,7,9)
+list_whse <- list(3)
+for(i in list_whse){
+  var_whse <- i
+
 var_build <- 1
 
 sqlquery <- paste("SELECT 
-    workday_workday AS WORKDAY,
+                  workday_workday AS WORKDAY,
                   workday_weekofmon AS MONTHWEEK,
                   workday_weekday AS WEEKDAY,
                   workday_dayofmon AS MONTHDAY,
@@ -88,4 +98,45 @@ dataTest$error_rate_abs <- abs((dataTest$forecastlines - dataTest$WHSLINES)/data
 currentDate <- Sys.Date()
 csvFileName <- paste("forecast_whselines_0",var_whse,"_",currentDate,".csv",sep="")
 write.csv(dataTest, file=csvFileName)
+
+
+sqlquery <- paste("SELECT 
+                  workday_workday AS WORKDAY,
+                  workday_weekofmon AS MONTHWEEK,
+                  workday_weekday AS WEEKDAY,
+                  workday_dayofmon AS MONTHDAY,
+                  workday_month AS MONTH,
+                  YEAR(workday_date) AS YEAR,
+                  workday_befvac AS BEFVAC,
+                  workday_aftvac AS AFTVAC,
+                  workday_befchrist AS BEFCHR,
+                  workday_aftchrist AS AFTCHR,
+                  0 as WHSLINES
+                  FROM
+                  printvis.workdayofweek
+                  WHERE
+                  workday_date between '",date_today,"' AND '",date_1week,"'
+                  ORDER BY workday_date", sep = "")
+preddata <- query(sqlquery)
+
+data_new_lines <- build.x(data_formula_boxes, data=preddata, contrasts = FALSE, sparse = TRUE)
+
+
+sqlquery <- paste("SELECT 
+                    ",var_whse,",workday_date
+                  FROM
+                  printvis.workdayofweek
+                  WHERE
+                  workday_date BETWEEN  '",date_today,"' AND '",date_1week,"'
+                  ORDER BY workday_date", sep = "")
+forecast_insert <- query(sqlquery)
+
+
+  
+forecast_insert$lines <- predict(model.xgb,newdata = data_new_lines)
+forecast_insert$actuallines <- 0
+rmysql_update(mychannel, forecast_insert, 'printvis.forecast_whselines', verbose = FALSE)
+}
 lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
+
+

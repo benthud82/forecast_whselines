@@ -82,7 +82,6 @@ model.xgb <- xgb.train(data=xgTrain_box, objective='reg:linear', eval_metric='rm
                        early_stopping_rounds=100, nrounds = 100000, num_parallel_tree=20, print_every_n = 20, nthread=8,eta = .1, max_depth = 7)
 
 dataTest.xgb <- build.x(data_formula_boxes, data=dataTest, contrasts = FALSE, sparse = TRUE)
-
 prediction.xgb <- predict(model.xgb, newdata = dataTest.xgb)
 plot(dataTest$BOXES,prediction.xgb,col='blue',main='Real vs predicted Boosted Forest',pch=18, cex=0.7)
 abline(0,1,lwd=2)
