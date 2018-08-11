@@ -19,8 +19,8 @@ date_today <- date_today
 date_1week <- date_today + 7
 
 
-#list_whse <- list(2,3,6,7,9)
-list_whse <- list(3)
+list_whse <- list(2,3,6,7,9)
+#list_whse <- list(3)
 for(i in list_whse){
   var_whse <- i
 
@@ -134,7 +134,8 @@ forecast_insert <- query(sqlquery)
 
   
 forecast_insert$lines <- predict(model.xgb,newdata = data_new_lines)
-forecast_insert$actuallines <- 0
+forecast_insert$seed02 <- 0
+forecast_insert$seed03 <- 0
 rmysql_update(mychannel, forecast_insert, 'printvis.forecast_whselines', verbose = FALSE)
 }
 lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
