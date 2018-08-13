@@ -22,9 +22,13 @@ date_1week <- date_today + 7
 #list_whse <- list(2,3,6,7,9)
 list_whse <- list(3)
 for(i in list_whse){
-  var_whse <- i
 
-var_build <- 1
+
+  var_whse <- i
+  var_build <- 1
+
+  seedarray <- list(01)
+    for(s in seedarray){
 
 sqlquery <- paste("SELECT 
                   workday_workday AS WORKDAY,
@@ -53,7 +57,7 @@ sqlquery <- paste("SELECT
 data <- query(sqlquery)
 
 
-set.seed(220)
+set.seed(s)
 trainIndex <- createDataPartition(data$WHSLINES,
                                   p = .75,
                                   list = FALSE,
@@ -80,9 +84,13 @@ xgTrain_box <- xgb.DMatrix(data=dataX_Train_box,
                            label=dataY_Train_box)
 
 xgVal_box <- xgb.DMatrix(data=dataX_Test_box,
-                         label=dataY_Test_box)
+                        label=dataY_Test_box)
 
-model.xgb <- xgb.train(data=xgTrain_box, objective='reg:linear', eval_metric='rmse', booster='gbtree', watchlist = list(train=xgTrain_box, validate=xgVal_box),
+modelname <- paste("model.xgb",s,sep = "")
+modelname0
+
+
+paste("model.xgb",s,sep = "") <- xgb.train(data=xgTrain_box, objective='reg:linear', eval_metric='rmse', booster='gbtree', watchlist = list(train=xgTrain_box, validate=xgVal_box),
                        early_stopping_rounds=100, nrounds = 100000, num_parallel_tree=20, print_every_n = 20, nthread=8,eta = .1, max_depth = 5)
 
 dataTest.xgb <- build.x(data_formula_boxes, data=dataTest, contrasts = FALSE, sparse = TRUE)
@@ -98,7 +106,7 @@ dataTest$error_rate_abs <- abs((dataTest$forecastlines - dataTest$WHSLINES)/data
 currentDate <- Sys.Date()
 csvFileName <- paste("forecast_whselines_0",var_whse,"_",currentDate,".csv",sep="")
 write.csv(dataTest, file=csvFileName)
-
+}
 
 sqlquery <- paste("SELECT 
                   workday_workday AS WORKDAY,
@@ -135,7 +143,7 @@ forecast_insert <- query(sqlquery)
   
 forecast_insert$lines <- predict(model.xgb,newdata = data_new_lines)
 forecast_insert$actuallines <- 0
-rmysql_update(mychannel, forecast_insert, 'printvis.forecast_whselines', verbose = FALSE)
+#rmysql_update(mychannel, forecast_insert, 'printvis.forecast_whselines', verbose = FALSE)
 }
 lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
 
