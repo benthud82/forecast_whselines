@@ -20,7 +20,7 @@ date_1week <- date_today + 7
 
 
 list_whse <- list(2,3,6,7,9)
-#list_whse <- list(3)
+#list_whse <- list(9)
 for(i in list_whse){
   var_whse <- i
 
@@ -48,12 +48,11 @@ sqlquery <- paste("SELECT
                   WHERE
                   whse =  ",var_whse," 
                   and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
-                  and YEAR(workday_date) >= 2015
                   AND outlier_date IS NULL", sep = "")
 data <- query(sqlquery)
 
 
-set.seed(220)
+set.seed(22)
 trainIndex <- createDataPartition(data$WHSLINES,
                                   p = .75,
                                   list = FALSE,
