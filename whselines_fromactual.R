@@ -1,4 +1,4 @@
-test
+
 knitr::opts_chunk$set(message = FALSE)
 packages <- c('useful', 'coefplot', 'xgboost', 'here', 'magrittr', 'dygraphs', 'dplyr', 'RMySQL', 'caret', 'purrr', 'randomForest', 'rpart', 'neuralnet', 'tictoc', 'tinytex', 'DT', 'partykit', 'rpart.plot','rattle')
 purrr::walk(packages, library, character.only = TRUE)
