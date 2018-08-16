@@ -21,7 +21,7 @@ date_1week <- date_today + 7
 
 
 list_whse <- list(2,3,6,7,9)
-#list_whse <- list(9)
+#list_whse <- list(3)
 for(i in list_whse){
   var_whse <- i
 
