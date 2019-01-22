@@ -10,7 +10,7 @@ mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="127.0.0.1")
 
 #Google Prod
 #mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="104.154.153.225")
-
+source('RMySQL_Update.R')
 query <- function(...) dbGetQuery(mychannel, ...)
 date_today <- Sys.Date()
 date_1week <- date_today + 7
@@ -144,8 +144,9 @@ forecast_insert <- query(sqlquery)
 
 
 
-forecast_insert$lines <- predict(model.xgb,newdata = data_new_lines)
-rmysql_update(mychannel, forecast_insert, 'printvis.forecast_whselines', verbose = FALSE)
+forecast_insert$lines <- predict(model.xgb,newdata = data_new)
+forecast_insert$cube <- 0
+rmysql_update(mychannel, forecast_insert, 'printvis.loosevol_forecast', verbose = FALSE)
 
 
 } #end of equipment list loop
