@@ -157,8 +157,8 @@ rmysql_update(mychannel, forecast_insert, 'printvis.loosevol_forecast', verbose 
 
 
 
-currentDate <- Sys.Date()
-csvFileName <- paste("line_pred_whse",var_whse,"_",currentDate,".csv",sep="")
-write.csv(preddata, file=csvFileName)
-lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
+#currentDate <- Sys.Date()
+#csvFileName <- paste("line_pred_whse",var_whse,"_",currentDate,".csv",sep="")
+#write.csv(preddata, file=csvFileName)
+#lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
 
