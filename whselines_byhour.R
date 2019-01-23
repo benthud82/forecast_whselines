@@ -3,10 +3,10 @@ packages <- c('useful', 'coefplot', 'xgboost', 'here', 'magrittr', 'dygraphs', '
 purrr::walk(packages, library, character.only = TRUE)
 #lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
 #dev
-mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="127.0.0.1")
+#mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="127.0.0.1")
 
 #NY Server Prod
-#mychannel <- dbConnect(MySQL(), user="root", pass="dave41", host="127.0.0.1")
+mychannel <- dbConnect(MySQL(), user="root", pass="", host="127.0.0.1")
 
 #Google Prod
 #mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="104.154.153.225")
@@ -15,6 +15,7 @@ query <- function(...) dbGetQuery(mychannel, ...)
 date_today <- Sys.Date()
 date_1week <- date_today + 7
 list_whse <- list(2,3,6,7,9)
+#list_whse <- list(3)
 list_equipment <- list('BLUEBIN', 'DOGPOUND','FLOWRACK','FULLPALLET', 'OTHER')
 var_build <- 1
 
@@ -55,6 +56,7 @@ WHERE
     loosevol_whse =  ",var_whse," and loosevol_availhour between 6 and 16
         AND loosevol_equip = '",var_equip,"' and loosevol_availdate <  '",date_today,"'
         and looseout_hour is null
+        and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
 GROUP BY loosevol_availdate , CASE
     WHEN loosevol_availhour < 6 THEN 6
     WHEN loosevol_availhour > 16 THEN 16
