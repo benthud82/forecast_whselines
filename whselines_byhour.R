@@ -6,7 +6,7 @@ purrr::walk(packages, library, character.only = TRUE)
 mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="127.0.0.1")
 
 #NY Server Prod
-#mychannel <- dbConnect(MySQL(), user="root", pass="dave41", host="127.0.0.1")
+#mychannel <- dbConnect(MySQL(), user="root", pass="", host="127.0.0.1")
 
 #Google Prod
 #mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="104.154.153.225")
