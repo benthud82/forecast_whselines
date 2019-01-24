@@ -1,0 +1,8 @@
+#dev personal computer
+#mychannel <- dbConnect(MySQL(), user="root", pass="dave41", host="127.0.0.1")
+
+#NY Server Prod
+#mychannel <- dbConnect(MySQL(), user="root", pass="dave41", host="127.0.0.1")
+
+#Google Prod
+mychannel <- dbConnect(MySQL(), user="bentley", pass="dave414!", host="104.154.153.225")
