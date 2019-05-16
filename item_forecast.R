@@ -4,18 +4,8 @@ packages <- c('useful', 'coefplot', 'xgboost', 'here', 'magrittr', 'dygraphs', '
 purrr::walk(packages, library, character.only = TRUE)
 #lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
 
-#dev
-#mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="127.0.0.1")
 
-
-#dev personal computer
-#mychannel <- dbConnect(MySQL(), user="root", pass="dave41", host="127.0.0.1")
-
-#NY Server Prod
-#mychannel <- dbConnect(MySQL(), user="root", pass="dave41", host="127.0.0.1")
-
-#Google Prod
-mychannel <- dbConnect(MySQL(), user="bentley", pass="dave41", host="104.154.153.225")
+source('connections.R')
 
 #source('RMySQL_Update.R')
 
