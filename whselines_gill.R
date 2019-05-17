@@ -12,6 +12,9 @@ date_today <- Sys.Date()
 date_today <- date_today
 date_1week <- date_today + 7
 
+list_tier <- list('FLOW', 'BIN', 'PALL')
+for(i in list_tier){
+  var_tier <- i
 
 sqlquery <- paste("SELECT 
                       workday_date AS PRED_DATE,
@@ -27,12 +30,15 @@ sqlquery <- paste("SELECT
                   workday_aftchrist AS AFTCHR,
                   COUNT(ITEM) AS WHSLINES
                   FROM
-                  gillingham.workdayofweek
+                   gillingham.workdayofweek
                   JOIN
-                  gillingham.gill_raw ON PICKDATE = workday_date
+                    gillingham.gill_raw ON PICKDATE = workday_date
+                  JOIN
+                    gillingham.slotmaster ON slotmaster_loc = LOCATION
                   LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
                   WHERE
                   workday_date <= '2018-12-31'
+                  AND slotmaster_tier = '",var_tier,"' 
                   and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
                   and exclude_date is null
                   GROUP BY workday_date", sep = "")
@@ -41,7 +47,7 @@ data <- query(sqlquery)
 
 set.seed(21)
 trainIndex <- createDataPartition(data$WHSLINES,
-                                  p = .70,
+                                  p = .75,
                                   list = FALSE,
                                   times = 1)
 
@@ -110,7 +116,7 @@ data_new_lines <- build.x(data_formula_boxes, data=preddata, contrasts = FALSE, 
 
 
 sqlquery <- paste("SELECT 
-                    0,workday_date
+                    0,workday_date, '",var_tier,"' 
                   FROM
                   gillingham.workdayofweek
                   WHERE
@@ -125,6 +131,7 @@ forecast_insert$lines <- predict(model.xgb,newdata = data_new_lines)
 forecast_insert$seed02 <- 0
 forecast_insert$seed03 <- 0
 rmysql_update(mychannel, forecast_insert, 'gillingham.forecast_whselines', verbose = FALSE)
+}
 
 lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
 
