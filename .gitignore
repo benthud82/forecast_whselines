@@ -1,2 +1,6 @@
 connections.R
-.Rproj.user
+.Rproj.user/
+.Rproj.*
+*.csv
+.Rhistory
+*.ods
