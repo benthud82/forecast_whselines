@@ -36,11 +36,13 @@ date_today <- Sys.Date()
 date_today <- date_today
 date_1week <- date_today + 7
 
-list_tier <- list('FLOW', 'BIN', 'PALL')
+list_tier <- list('%', 'FLOW', 'BIN', 'PALL')
 
 for (i in list_tier) {
 
     var_tier <- i
+    
+
     
     sqlquery <- paste(
       "SELECT
@@ -65,9 +67,7 @@ for (i in list_tier) {
       LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
       WHERE
       workday_date <= '2018-12-31'
-      AND slotmaster_tier = '",
-      var_tier,
-      "'
+      
       and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
       and exclude_date is null
       GROUP BY workday_date",
