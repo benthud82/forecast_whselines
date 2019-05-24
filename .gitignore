@@ -4,3 +4,4 @@ connections.R
 *.csv
 .Rhistory
 *.ods
+.Rproj.user

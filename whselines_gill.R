@@ -33,14 +33,15 @@ var_whse <- 'GB0001'
 query <- function(...)
   dbGetQuery(mychannel, ...)
 date_today <- Sys.Date()
-date_today <- date_today
-date_1week <- date_today + 7
+date_today <- '2019-04-30'
 
 list_tier <- list('FLOW', 'BIN', 'PALL')
 
 for (i in list_tier) {
 
     var_tier <- i
+    
+
     
     sqlquery <- paste(
       "SELECT
@@ -55,21 +56,21 @@ for (i in list_tier) {
       workday_aftvac AS AFTVAC,
       workday_befchrist AS BEFCHR,
       workday_aftchrist AS AFTCHR,
-      COUNT(ITEM) AS WHSLINES
+      linesgrouped_lines AS WHSLINES
       FROM
       gillingham.workdayofweek
       JOIN
-      gillingham.gill_raw ON PICKDATE = workday_date
-      JOIN
-      gillingham.slotmaster ON slotmaster_loc = LOCATION
+      gillingham.fcast_linesgrouped ON linesgrouped_date = workday_date
       LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
       WHERE
-      workday_date <= '2018-12-31'
-      AND slotmaster_tier = '",
-      var_tier,
+      workday_date <= '",
+      date_today,
       "'
       and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
       and exclude_date is null
+      and linesgrouped_tier = '",
+      var_tier,
+      "'
       GROUP BY workday_date",
       sep = ""
     )
@@ -174,7 +175,7 @@ for (i in list_tier) {
       FROM
       gillingham.workdayofweek
       WHERE
-      workday_date between '2019-01-01' AND '2019-01-31'
+      workday_date between '2019-05-01' AND '2019-05-31'
       and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
       ORDER BY workday_date",
       sep = ""
@@ -200,7 +201,7 @@ for (i in list_tier) {
       FROM
       gillingham.workdayofweek
       WHERE
-      workday_date BETWEEN '2019-01-01' AND '2019-01-31'
+      workday_date BETWEEN '2019-05-01' AND '2019-05-31'
       and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
       ORDER BY workday_date",
       sep = ""
