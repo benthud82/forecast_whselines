@@ -119,7 +119,7 @@ for (i in list_tier) {
         booster = 'gbtree',
         watchlist = list(train = xgTrain_box, validate = xgVal_box),
         early_stopping_rounds = 100,
-        nrounds = 100000,
+        nrounds = 1000,
         num_parallel_tree = 20,
         print_every_n = 20,
         nthread = 8,
