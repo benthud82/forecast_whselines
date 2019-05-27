@@ -123,7 +123,7 @@ for (i in list_tier) {
         num_parallel_tree = 20,
         print_every_n = 20,
         nthread = 8,
-        eta = .01,
+        eta = .1,
         max_depth = 8
       )
     
