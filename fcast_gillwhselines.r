@@ -214,7 +214,7 @@ for (i in list_tier) {
     forecast_insert$seed03 <- 0
     rmysql_update(mychannel,
                   forecast_insert,
-                  'gillingham.forecast_whselines',
+                  'gillingham.forecast_whselines_tier',
                   verbose = FALSE)
   }
 }
