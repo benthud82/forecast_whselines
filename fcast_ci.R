@@ -1,5 +1,6 @@
 
 
+
 source('connections.R')
 source('RMySQL_Update.R')
 
@@ -14,15 +15,18 @@ sqlquery <- paste(
   workday_date
   FROM
   gillingham.workdayofweek
+  LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
   WHERE
   workday_date BETWEEN '2019-05-01' AND '2019-05-31'
+  and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
+  and exclude_date is null
   ORDER BY workday_date",
   sep = ""
 )
 data_dates <- query(sqlquery)
 
 for (i in 1:nrow(data_dates)) {
-  var_date <- (data_dates[i, ])
+  var_date <- (data_dates[i,])
   
   sqlquery <- paste(
     "SELECT
@@ -43,21 +47,11 @@ for (i in 1:nrow(data_dates)) {
   ci_mean <- as.numeric(ci_mean_named)
   ci_lowbound <- testdata$conf.int[1]
   ci_upbound <- testdata$conf.int[2]
-  # #  ci_insert <- list()
-  # ci_insert <- as.data.frame(
-  #   #date = as.Date(character()),
-  #   #tier = character(),
-  #   #mean = integer(),
-  #   #lower = integer(),
-  #   #upper = integer()
-  # )
-  # ci_insert$date <- var_date
-  # ci_insert$tier <- 'FLOW'
-  # ci_insert$mean <- ci_mean
-  # ci_insert$lower <- ci_lowbound
-  # ci_insert$upper <- ci_upbound
+
+
   
-  ci_insert <- data.frame(var_date, 'FLOW', ci_mean, ci_lowbound, ci_upbound)
+  ci_insert <-
+    data.frame(var_date, 'FLOW', ci_mean, ci_lowbound, ci_upbound)
   
   rmysql_update(mychannel,
                 ci_insert,

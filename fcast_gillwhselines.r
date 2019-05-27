@@ -73,7 +73,7 @@ for (i in list_tier) {
       sep = ""
     )
     data <- query(sqlquery)
-    for (s in 1:25) {
+    for (s in 1:10) {
     
     set.seed(s)
     trainIndex <- createDataPartition(data$WHSLINES,
