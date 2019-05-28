@@ -33,7 +33,7 @@ query <- function(...)
 date_today <- Sys.Date()
 date_today <- '2019-04-30'
 
-list_tier <- list('FLOW', 'BIN', 'PALL')
+list_tier <- list('%','FLOW', 'BIN', 'PALL')
 
 for (i in list_tier) {
 
@@ -54,7 +54,7 @@ for (i in list_tier) {
       workday_aftvac AS AFTVAC,
       workday_befchrist AS BEFCHR,
       workday_aftchrist AS AFTCHR,
-      linesgrouped_lines AS WHSLINES
+      sum(linesgrouped_lines) AS WHSLINES
       FROM
       gillingham.workdayofweek
       JOIN
@@ -66,14 +66,14 @@ for (i in list_tier) {
       "'
       and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
       and exclude_date is null
-      and linesgrouped_tier = '",
+      and linesgrouped_tier LIKE '",
       var_tier,
       "'
       GROUP BY workday_date",
       sep = ""
     )
     data <- query(sqlquery)
-    for (s in 1:10) {
+    for (s in 1:25) {
     
     set.seed(s)
     trainIndex <- createDataPartition(data$WHSLINES,

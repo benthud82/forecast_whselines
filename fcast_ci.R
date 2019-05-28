@@ -1,6 +1,12 @@
 
 
 
+knitr::opts_chunk$set(message = FALSE)
+packages <-
+  c('RMySQL')
+purrr::walk(packages, library, character.only = TRUE)
+
+
 source('connections.R')
 source('RMySQL_Update.R')
 
@@ -26,9 +32,8 @@ sqlquery <- paste(
 data_dates <- query(sqlquery)
 
 for (i in 1:nrow(data_dates)) {
-
   var_date <- (data_dates[i,])
-
+  
   
   sqlquery <- paste(
     "SELECT
@@ -39,7 +44,7 @@ for (i in 1:nrow(data_dates)) {
     fcast_date = '",
     var_date,
     "'
-    AND fcast_tier = 'FLOW'",
+    AND fcast_tier = '%'",
     sep = ""
   )
   data_lines <- query(sqlquery)
@@ -47,15 +52,16 @@ for (i in 1:nrow(data_dates)) {
   testdata <- t.test(data_lines)
   ci_mean_named <- testdata$estimate
   ci_mean <- as.numeric(ci_mean_named)
-  ci_lowbound <- testdata$conf.int[1]
-  ci_upbound <- testdata$conf.int[2]
-
-
-
+  
+  ci_std <- sapply(data_lines, sd)
+  ci_meanplus2std <- ci_mean + (2 * ci_std)
+  ci_meanminus2std <- ci_mean - (2 * ci_std)
+  
+  
   
   ci_insert <-
-    data.frame(var_date, 'FLOW', ci_mean, ci_lowbound, ci_upbound)
-
+    data.frame(var_date, 'ALL', ci_mean, ci_meanminus2std, ci_meanplus2std)
+  
   
   rmysql_update(mychannel,
                 ci_insert,
