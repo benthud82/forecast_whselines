@@ -26,7 +26,9 @@ sqlquery <- paste(
 data_dates <- query(sqlquery)
 
 for (i in 1:nrow(data_dates)) {
+
   var_date <- (data_dates[i,])
+
   
   sqlquery <- paste(
     "SELECT
@@ -49,9 +51,11 @@ for (i in 1:nrow(data_dates)) {
   ci_upbound <- testdata$conf.int[2]
 
 
+
   
   ci_insert <-
     data.frame(var_date, 'FLOW', ci_mean, ci_lowbound, ci_upbound)
+
   
   rmysql_update(mychannel,
                 ci_insert,
