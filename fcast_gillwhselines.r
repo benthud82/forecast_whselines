@@ -1,4 +1,8 @@
 
+
+
+
+
 knitr::opts_chunk$set(message = FALSE)
 packages <-
   c(
@@ -31,50 +35,56 @@ var_whse <- 'GB0001'
 query <- function(...)
   dbGetQuery(mychannel, ...)
 date_today <- Sys.Date()
-date_today <- '2019-04-30'
+date_today <- '2019-03-31'
+
+trainstart_date <- '2017-01-01'
+trainend_date <- '2019-05-31'
+
+predstart_date <- '2019-06-01'
+predend_date <- '2019-06-31'
 
 list_tier <- list('%','FLOW', 'BIN', 'PALL')
 
 for (i in list_tier) {
-
-    var_tier <- i
-    
-
-    
-    sqlquery <- paste(
-      "SELECT
-      workday_date AS PRED_DATE,
-      workday_workday AS WORKDAY,
-      workday_weekofmon AS MONTHWEEK,
-      workday_weekday AS WEEKDAY,
-      workday_dayofmon AS MONTHDAY,
-      workday_month AS MONTH,
-      YEAR(workday_date) AS YEAR,
-      workday_befvac AS BEFVAC,
-      workday_aftvac AS AFTVAC,
-      workday_befchrist AS BEFCHR,
-      workday_aftchrist AS AFTCHR,
-      sum(linesgrouped_lines) AS WHSLINES
-      FROM
-      gillingham.workdayofweek
-      JOIN
-      gillingham.fcast_linesgrouped ON linesgrouped_date = workday_date
-      LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
-      WHERE
-      workday_date <= '",
-      date_today,
-      "'
-      and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
-      and exclude_date is null
-      and linesgrouped_tier LIKE '",
-      var_tier,
-      "'
-      GROUP BY workday_date",
-      sep = ""
-    )
-    data <- query(sqlquery)
-    for (s in 1:25) {
-    
+  var_tier <- i
+  
+  
+  
+  sqlquery <- paste(
+    "SELECT
+    workday_date AS PRED_DATE,
+    workday_workday AS WORKDAY,
+    workday_weekofmon AS MONTHWEEK,
+    workday_weekday AS WEEKDAY,
+    workday_dayofmon AS MONTHDAY,
+    workday_month AS MONTH,
+    YEAR(workday_date) AS YEAR,
+    workday_befvac AS BEFVAC,
+    workday_aftvac AS AFTVAC,
+    workday_befchrist AS BEFCHR,
+    workday_aftchrist AS AFTCHR,
+    sum(linesgrouped_lines) AS WHSLINES
+    FROM
+    gillingham.workdayofweek
+    JOIN
+    gillingham.fcast_linesgrouped ON linesgrouped_date = workday_date
+    LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
+    WHERE
+    workday_date  between '",
+    trainstart_date,
+    "' and '",
+    trainend_date,
+    "'
+    and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
+    and exclude_date is null
+    and linesgrouped_tier LIKE '",
+    var_tier,
+    "'
+    GROUP BY workday_date",
+    sep = ""
+  )
+  data <- query(sqlquery)
+  for (s in 1:25) {
     set.seed(s)
     trainIndex <- createDataPartition(data$WHSLINES,
                                       p = .75,
@@ -172,9 +182,15 @@ for (i in list_tier) {
       0 as WHSLINES
       FROM
       gillingham.workdayofweek
+      LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
       WHERE
-      workday_date between '2019-05-01' AND '2019-05-31'
+      workday_date between '",
+      predstart_date,
+      "' and '",
+      predend_date,
+      "'
       and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
+      and exclude_date is null
       ORDER BY workday_date",
       sep = ""
     )
@@ -188,19 +204,31 @@ for (i in list_tier) {
         sparse = TRUE
       )
     
+    if (var_tier == '%') {
+      tierinsert = 'ALL'
+    } else{
+      tierinsert =var_tier
+    }
+    
     
     sqlquery <- paste(
       "SELECT
       0,workday_date, ",
       s,
       ", '",
-      var_tier,
+      tierinsert,
       "'
       FROM
       gillingham.workdayofweek
+      LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
       WHERE
-      workday_date BETWEEN '2019-05-01' AND '2019-05-31'
+      workday_date between '",
+      predstart_date,
+      "' and '",
+      predend_date,
+      "'
       and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
+      and exclude_date is null
       ORDER BY workday_date",
       sep = ""
     )
