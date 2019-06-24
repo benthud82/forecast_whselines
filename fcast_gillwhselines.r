@@ -45,6 +45,7 @@ predend_date <- '2019-06-31'
 
 list_tier <- list('%','FLOW', 'BIN', 'PALL')
 
+
 for (i in list_tier) {
   var_tier <- i
   

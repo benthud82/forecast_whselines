@@ -1,8 +1,4 @@
 
-
-
-
-
 knitr::opts_chunk$set(message = FALSE)
 packages <-
   c('RMySQL')
@@ -27,11 +23,15 @@ sqlquery <- paste(
   gillingham.workdayofweek
   LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
   WHERE
+<<<<<<< HEAD
   workday_date BETWEEN '",
   trainstart_date,
   "' and '",
   trainend_date,
   "'
+=======
+  workday_date BETWEEN '2019-04-01' AND '2019-04-31'
+>>>>>>> eb1bdab30f0cb18b8f028f7dce17898797c9cb1a
   and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
   and exclude_date is null
   ORDER BY workday_date",
@@ -46,6 +46,7 @@ for (i in list_tier) {
   
   for (i in 1:nrow(data_dates)) {
     var_date <- (data_dates[i,])
+
     
     
     sqlquery <- paste(
@@ -72,6 +73,7 @@ for (i in list_tier) {
     #using 3 std because such a tight sd
     ci_meanplus2std <- ci_mean + (3 * ci_std)  
     ci_meanminus2std <- ci_mean - (3 * ci_std)
+
     
     
     
