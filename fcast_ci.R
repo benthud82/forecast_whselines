@@ -11,8 +11,8 @@ source('RMySQL_Update.R')
 query <- function(...)
   dbGetQuery(mychannel, ...)
 
-trainstart_date <- '2019-04-01'
-trainend_date <- '2019-06-31'
+trainstart_date <- '2019-08-01'
+trainend_date <- '2019-08-31'
 
 #Generate list of dates
 
@@ -23,15 +23,11 @@ sqlquery <- paste(
   gillingham.workdayofweek
   LEFT JOIN gillingham.fcast_dateexcl on exclude_date = workday_date
   WHERE
-<<<<<<< HEAD
   workday_date BETWEEN '",
   trainstart_date,
   "' and '",
   trainend_date,
   "'
-=======
-  workday_date BETWEEN '2019-04-01' AND '2019-04-31'
->>>>>>> eb1bdab30f0cb18b8f028f7dce17898797c9cb1a
   and (workday_befvac + workday_aftvac + workday_befchrist + workday_aftchrist) = 0
   and exclude_date is null
   ORDER BY workday_date",

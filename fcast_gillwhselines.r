@@ -38,13 +38,13 @@ date_today <- Sys.Date()
 date_today <- '2019-03-31'
 
 trainstart_date <- '2017-01-01'
-trainend_date <- '2019-05-31'
+trainend_date <- '2019-07-31'
 
-predstart_date <- '2019-06-01'
-predend_date <- '2019-06-31'
+predstart_date <- '2019-08-01'
+predend_date <- '2019-08-31'
 
 list_tier <- list('%','FLOW', 'BIN', 'PALL')
-
+#list_tier <- list('PALL')
 
 for (i in list_tier) {
   var_tier <- i
@@ -85,7 +85,7 @@ for (i in list_tier) {
     sep = ""
   )
   data <- query(sqlquery)
-  for (s in 1:25) {
+  for (s in 1:12) {
     set.seed(s)
     trainIndex <- createDataPartition(data$WHSLINES,
                                       p = .75,
@@ -133,7 +133,7 @@ for (i in list_tier) {
         nrounds = 1000,
         num_parallel_tree = 20,
         print_every_n = 20,
-        nthread = 8,
+        nthread = 16,
         eta = .1,
         max_depth = 8
       )
