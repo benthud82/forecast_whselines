@@ -44,10 +44,10 @@ list_tier <- list('%','FLOW', 'BIN', 'PALL')
 #list_tier <- list('PALL')
 
 # set up the cross-validated hyper-parameter search
-cv.ctrl <- trainControl(method = "repeatedcv", repeats = 1,number = 3, 
+cv.ctrl <- trainControl(method = "repeatedcv", repeats = 1,number = 5, 
                         #summaryFunction = twoClassSummary,
                         classProbs = TRUE,
-                        allowParallel=T)
+                        allowParallel=T )
 
 xgb.grid <- expand.grid(nrounds = 1000,
                         eta = c(0.01,0.05,0.1),
@@ -113,27 +113,27 @@ for (i in list_tier) {
     
     
     #boxes data training
-    # dataX_Train_box <- build.x(
-    #   data_formula_boxes,
-    #   data = dataTrain,
-    #   contrasts = FALSE,
-    #   sparse = TRUE
-    # )
-    # dataY_Train_box <- build.y(data_formula_boxes, data = dataTrain)
+    dataX_Train_box <- build.x(
+      data_formula_boxes,
+      data = dataTrain,
+      contrasts = FALSE,
+      sparse = TRUE
+    )
+    dataY_Train_box <- build.y(data_formula_boxes, data = dataTrain)
     
-    # dataX_Test_box <- build.x(
-    #   data_formula_boxes,
-    #   data = dataTest,
-    #   contrasts = FALSE,
-    #   sparse = TRUE
-    # )
-    # dataY_Test_box <- build.y(data_formula_boxes, data = dataTest)
+    dataX_Test_box <- build.x(
+      data_formula_boxes,
+      data = dataTest,
+      contrasts = FALSE,
+      sparse = TRUE
+    )
+    dataY_Test_box <- build.y(data_formula_boxes, data = dataTest)
     
-    # xgTrain_box <- xgb.DMatrix(data = dataX_Train_box,
-    #                            label = dataY_Train_box)
-    # 
-    # xgVal_box <- xgb.DMatrix(data = dataX_Test_box,
-                             # label = dataY_Test_box)
+    xgTrain_box <- xgb.DMatrix(data = dataX_Train_box,
+                               label = dataY_Train_box)
+
+    xgVal_box <- xgb.DMatrix(data = dataX_Test_box,
+    label = dataY_Test_box)
     
     xgb_tune <-train(data_formula_boxes,
                      data=dataTrain,
@@ -142,7 +142,8 @@ for (i in list_tier) {
                      tuneGrid=xgb.grid,
                      verbose=T,
                      metric="rmse",
-                     nthread =3
+                     nthread =16
+                     
     )
     
     dataTest.xgb <-
