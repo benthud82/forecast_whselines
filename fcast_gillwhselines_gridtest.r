@@ -19,7 +19,8 @@ packages <-
     'DT',
     'partykit',
     'rpart.plot',
-    'rattle'
+    'rattle',
+    'caret'
   )
 purrr::walk(packages, library, character.only = TRUE)
 #lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
@@ -33,14 +34,30 @@ date_today <- Sys.Date()
 date_today <- '2019-03-31'
 
 trainstart_date <- '2017-01-01'
-trainend_date <- '2019-05-31'
+trainend_date <- '2019-09-31'
 
-predstart_date <- '2019-06-01'
-predend_date <- '2019-06-31'
+predstart_date <- '2019-10-01'
+predend_date <- '2019-11-31'
 
 list_tier <- list('%','FLOW', 'BIN', 'PALL')
 
 #list_tier <- list('PALL')
+
+# set up the cross-validated hyper-parameter search
+cv.ctrl <- trainControl(method = "repeatedcv", repeats = 1,number = 3, 
+                        #summaryFunction = twoClassSummary,
+                        classProbs = TRUE,
+                        allowParallel=T)
+
+xgb.grid <- expand.grid(nrounds = 1000,
+                        eta = c(0.01,0.05,0.1),
+                        max_depth = c(2,4,6,8,10,14),
+                        gamma=0,
+                        colsample_bytree = c(.5,1),
+                        min_child_weight = 1, 
+                        subsample = 1
+)
+set.seed(45)
 
 for (i in list_tier) {
   var_tier <- i
@@ -96,43 +113,37 @@ for (i in list_tier) {
     
     
     #boxes data training
-    dataX_Train_box <- build.x(
-      data_formula_boxes,
-      data = dataTrain,
-      contrasts = FALSE,
-      sparse = TRUE
+    # dataX_Train_box <- build.x(
+    #   data_formula_boxes,
+    #   data = dataTrain,
+    #   contrasts = FALSE,
+    #   sparse = TRUE
+    # )
+    # dataY_Train_box <- build.y(data_formula_boxes, data = dataTrain)
+    
+    # dataX_Test_box <- build.x(
+    #   data_formula_boxes,
+    #   data = dataTest,
+    #   contrasts = FALSE,
+    #   sparse = TRUE
+    # )
+    # dataY_Test_box <- build.y(data_formula_boxes, data = dataTest)
+    
+    # xgTrain_box <- xgb.DMatrix(data = dataX_Train_box,
+    #                            label = dataY_Train_box)
+    # 
+    # xgVal_box <- xgb.DMatrix(data = dataX_Test_box,
+                             # label = dataY_Test_box)
+    
+    xgb_tune <-train(data_formula_boxes,
+                     data=dataTrain,
+                     method="xgbTree",
+                     trControl=cv.ctrl,
+                     tuneGrid=xgb.grid,
+                     verbose=T,
+                     metric="rmse",
+                     nthread =3
     )
-    dataY_Train_box <- build.y(data_formula_boxes, data = dataTrain)
-    
-    dataX_Test_box <- build.x(
-      data_formula_boxes,
-      data = dataTest,
-      contrasts = FALSE,
-      sparse = TRUE
-    )
-    dataY_Test_box <- build.y(data_formula_boxes, data = dataTest)
-    
-    xgTrain_box <- xgb.DMatrix(data = dataX_Train_box,
-                               label = dataY_Train_box)
-    
-    xgVal_box <- xgb.DMatrix(data = dataX_Test_box,
-                             label = dataY_Test_box)
-    
-    model.xgb <-
-      xgb.train(
-        data = xgTrain_box,
-        objective = 'reg:linear',
-        eval_metric = 'rmse',
-        booster = 'gbtree',
-        watchlist = list(train = xgTrain_box, validate = xgVal_box),
-        early_stopping_rounds = 100,
-        nrounds = 1000,
-        num_parallel_tree = 20,
-        print_every_n = 20,
-        nthread = 16,
-        eta = .1,
-        max_depth = 8
-      )
     
     dataTest.xgb <-
       build.x(
@@ -142,12 +153,12 @@ for (i in list_tier) {
         sparse = TRUE
       )
     
-    prediction.xgb <- predict(model.xgb, newdata = dataTest.xgb)
+    prediction.xgb <- predict(xgb_tune, newdata = dataTest)
     
     
     
     dataTest$forecastlines <-
-      predict(model.xgb, newdata = dataTest.xgb)
+      predict(xgb_tune, newdata = dataTest)
     dataTest$delta <- dataTest$forecastlines - dataTest$WHSLINES
     dataTest$error_rate <-
       (dataTest$forecastlines - dataTest$WHSLINES) / dataTest$WHSLINES
@@ -193,13 +204,13 @@ for (i in list_tier) {
     )
     preddata <- query(sqlquery)
     
-    data_new_lines <-
-      build.x(
-        data_formula_boxes,
-        data = preddata,
-        contrasts = FALSE,
-        sparse = TRUE
-      )
+    # data_new_lines <-
+    #   build.x(
+    #     data_formula_boxes,
+    #     data = preddata,
+    #     contrasts = FALSE,
+    #     sparse = TRUE
+    #   )
     
     if (var_tier == '%') {
       tierinsert = 'ALL'
@@ -234,7 +245,7 @@ for (i in list_tier) {
     
     
     forecast_insert$lines <-
-      predict(model.xgb, newdata = data_new_lines)
+      predict(xgb_tune, newdata = preddata)
     forecast_insert$seed02 <- 0
     forecast_insert$seed03 <- 0
     rmysql_update(mychannel,
