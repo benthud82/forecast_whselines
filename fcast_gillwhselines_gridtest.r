@@ -27,6 +27,7 @@ purrr::walk(packages, library, character.only = TRUE)
 source('connections.R')
 
 source('RMySQL_Update.R')
+resultlis <- list()
 var_whse <- 'GB0001'
 query <- function(...)
   dbGetQuery(mychannel, ...)
@@ -34,14 +35,14 @@ date_today <- Sys.Date()
 date_today <- '2019-03-31'
 
 trainstart_date <- '2017-01-01'
-trainend_date <- '2019-09-31'
+trainend_date <- '2019-10-31'
 
-predstart_date <- '2019-10-01'
+predstart_date <- '2019-11-01'
 predend_date <- '2019-11-31'
 
 list_tier <- list('%','FLOW', 'BIN', 'PALL')
 
-#list_tier <- list('PALL')
+#list_tier <- list('PALL', 'BIN')
 
 # set up the cross-validated hyper-parameter search
 cv.ctrl <- trainControl(method = "repeatedcv", repeats = 1,number = 5, 
@@ -51,7 +52,7 @@ cv.ctrl <- trainControl(method = "repeatedcv", repeats = 1,number = 5,
 
 xgb.grid <- expand.grid(nrounds = 1000,
                         eta = c(0.01,0.05,0.1),
-                        max_depth = c(2,4,6,8,10,14),
+                        max_depth = c(2,3,4),
                         gamma=0,
                         colsample_bytree = c(.5,1),
                         min_child_weight = 1, 
@@ -141,10 +142,12 @@ for (i in list_tier) {
                      trControl=cv.ctrl,
                      tuneGrid=xgb.grid,
                      verbose=T,
-                     metric="rmse",
+                     metric="RMSE",
                      nthread =16
                      
     )
+    
+    resultlis[[s]] <- xgb_tune$bestTune
     
     dataTest.xgb <-
       build.x(
