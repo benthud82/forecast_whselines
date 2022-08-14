@@ -35,14 +35,14 @@ date_today <- Sys.Date()
 date_today <- '2019-03-31'
 
 trainstart_date <- '2017-01-01'
-trainend_date <- '2019-10-31'
+trainend_date <- '2019-09-31'
 
-predstart_date <- '2019-11-01'
-predend_date <- '2019-11-31'
+predstart_date <- '2019-10-01'
+predend_date <- '2019-10-31'
 
-list_tier <- list('%','FLOW', 'BIN', 'PALL')
+#list_tier <- list('%','FLOW', 'BIN', 'PALL')
 
-#list_tier <- list('PALL', 'BIN')
+list_tier <- list('%')
 
 # set up the cross-validated hyper-parameter search
 cv.ctrl <- trainControl(method = "repeatedcv", repeats = 1,number = 5, 
@@ -172,6 +172,8 @@ for (i in list_tier) {
     csvFileName <-
       paste("forecast_whselines_0",
             var_whse,
+            "_",
+            s,
             "_",
             currentDate,
             ".csv",

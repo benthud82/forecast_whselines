@@ -1,0 +1,16 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is a replication of this [DEMO](https://www.analyticsvidhya.com/blog/2021/06/predict-future-sales-using-xgbregressor/) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Trying to replicate this code to use for item demand forecasting.
+
+
+```{r}
+
+Test
+
+```
+

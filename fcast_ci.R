@@ -11,8 +11,8 @@ source('RMySQL_Update.R')
 query <- function(...)
   dbGetQuery(mychannel, ...)
 
-trainstart_date <- '2019-11-01'
-trainend_date <- '2019-11-31'
+trainstart_date <- '2019-10-01'
+trainend_date <- '2019-10-31'
 
 #Generate list of dates
 
